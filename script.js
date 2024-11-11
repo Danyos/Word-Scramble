@@ -138,12 +138,12 @@ let fruitName = [
     },
     {
         id: 28,
-        label: "Passion Fruit",
+        label: "Passion",
         hint: "A tropical fruit with a wrinkled skin and tangy seeds."
     },
     {
         id: 29,
-        label: "Dragon Fruit",
+        label: "Dragon",
         hint: "A vibrant fruit with pink skin and white flesh dotted with seeds."
     },
     {
@@ -180,10 +180,10 @@ let fruitName = [
 
 function randomArray(value, way = 'array') {
     if (way === 'string') {
-        let orgName=value.join('').toLowerCase();
-        let newName=value.sort(() => Math.random() - 0.5).join('').toLowerCase()
-        if (orgName===newName){
-            return randomArray(value,'string')
+        let orgName = value.join('').toLowerCase();
+        let newName = value.sort(() => Math.random() - 0.5).join('').toLowerCase()
+        if (orgName === newName) {
+            return randomArray(value, 'string')
         }
         return newName
     }
@@ -191,12 +191,12 @@ function randomArray(value, way = 'array') {
 }
 
 
-
 startGames.onclick = newGame
 
-const config={
-    count:5
+const config = {
+    count: 5
 }
+
 function newGame() {
     fruitName = randomArray(fruitName)
     let i = 0
@@ -254,7 +254,7 @@ function newGame() {
     let new_question_count = document.createElement('div');
 
     new_question_count.classList.add('hint');
-    new_question_count.innerHTML = "1/"+config.count
+    new_question_count.innerHTML = "1/" + config.count
     myCard.appendChild(new_question_count)
 
 
@@ -265,20 +265,36 @@ function newGame() {
 
 
     new_refresh_btn.onclick = function () {
-       score.refresh++
+
+        score.refresh++
+        fruitName = randomArray(fruitName)
         newWord()
+        // i++
+        // if (i === config.count) {
+        //     console.log("Game Over")
+        //     GameOver(score)
+        //     return
+        // }
     }
     new_check_btn.onclick = function () {
-        if (!newInput.value.length){
-            return errors()
+        // if (!errors()){
+        //     return;
+        // }
+        // errors(true)
+        let value = newInput.value.trim()
+        let current = fruitName[i].label.trim()
+
+        if (!validate(value, current)) {
+            return;
         }
-        errors(true)
-        if (fruitName[i].label.toLowerCase() === newInput.value.toLowerCase()) {
+
+
+        if (current.toLowerCase() === value.toLowerCase()) {
             score.success++
         } else {
             score.wrong++
         }
-        newInput.value=''
+        newInput.value = ''
         i++
         if (i === config.count) {
             console.log("Game Over")
@@ -289,50 +305,64 @@ function newGame() {
         newWord()
 
     }
-function newWord(){
-    new_scrambled_letters.innerHTML = randomArray(fruitName[i].label.split(""), 'string');
-    new_hint.innerHTML = fruitName[i].hint
-    new_question_count.innerHTML = i+1+"/"+config.count
-}
+
+    function newWord() {
+        new_scrambled_letters.innerHTML = randomArray(fruitName[i].label.split(""), 'string');
+        new_hint.innerHTML = fruitName[i].hint
+        new_question_count.innerHTML = i + 1 + "/" + config.count
+    }
 
 }
 
-function GameOver(score){
+function GameOver(score) {
 
-    let gamesTable=document.querySelector('.gamesTable')
-    gamesTable.innerHTML=''
-    let myScor=document.createElement('div')
+    let gamesTable = document.querySelector('.gamesTable')
+    gamesTable.innerHTML = ''
+    let myScor = document.createElement('div')
     myScor.setAttribute('class', "card bg-light text-dark text-center");
     gamesTable.appendChild(myScor)
-    myScor.innerHTML=`
+    myScor.innerHTML = `
 
-                <ul>
-                    <li>Success: ${score.success}</li>
-                    <li>Wrong: ${score.wrong}</li>
-                    <li>Refresh: ${score.refresh}</li>
+                <ul  class="list-group">
+                    <li  class="list-group-item d-flex justify-content-between align-items-center">
+                    Success <span class="badge badge-primary badge-pill">${score.success}</span></li>
+                    <li  class="list-group-item d-flex justify-content-between align-items-center">
+                    Wrong <span class="badge badge-danger badge-pill">${score.wrong}</span></li>
+                    <li  class="list-group-item d-flex justify-content-between align-items-center">
+                    Refresh  <span class="badge badge-warning badge-pill">${score.refresh}</span></li>
                 </ul>
      
     `
 
-    let newStart=document.createElement('button');
-    newStart.innerHTML=`Start Game`
+    let newStart = document.createElement('button');
+    newStart.setAttribute('class','btn btn-primary')
+    newStart.innerHTML = `Start Game`
     myScor.appendChild(newStart)
 
 
-    newStart.onclick=function (){
+    newStart.onclick = function () {
         gamesTable.remove()
         newGame()
     }
 }
-function errors(value){
-    let myValue=document.querySelector('.myValue')
-if (value){
 
-    myValue.classList.add('d-none')
-}else{
+function validate(value, current) {
+    let myValue = document.querySelector('.myValue')
+    if (value.length === current.length) {
+        myValue.classList.add('d-none')
+        return true
+    } else if (value.length === 0) {
+        myValue.classList.remove('d-none')
+        myValue.innerHTML = "Empty word...."
+        return false;
+    } else if (value.length > current.length) {
+        myValue.classList.remove('d-none')
+        myValue.innerHTML = `your text long ${value.length} then current answer length is ${current.length}`
+        return false;
+    } else if (value.length < current.length) {
+        myValue.classList.remove('d-none')
+        myValue.innerHTML = `your text short ${value.length} then current answer length is ${current.length}`
+        return false;
 
-    myValue.classList.remove('d-none')
-}
-
-    console.log(myValue)
+    }
 }
